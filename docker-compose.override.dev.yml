@@ -1,0 +1,13 @@
+version: '3.9'
+
+
+services:
+  app:
+    volumes:
+      - ./logs:/wd/logs:rw
+    user: ${UID}
+    environment:
+      - NAME=Bob
+    command:
+      - "--name"
+      - "${NAME}"
