@@ -10,7 +10,7 @@ def main() -> None:
     else:
         print("Tell me Your name, please. (Run cmd [--help] for help)")
         msg = "Failed"
-        write_log(msg)
+        # write_log(msg)
 
 
 if __name__ == "__main__":
