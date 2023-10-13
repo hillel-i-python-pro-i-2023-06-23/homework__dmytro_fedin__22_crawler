@@ -1,15 +1,6 @@
-from source.parser import is_name, parse_name
-from source.myfaker import print_fake_name
+from source.parser import get_link_list, get_link_depth
 
 
 def main() -> None:
-    if is_name():
-        parse_name()
-        print_fake_name()
-    else:
-        print("Tell me Your name, please. (Run cmd [--help] for help)")
+    fun()
 
-
-
-if __name__ == "__main__":
-    main()

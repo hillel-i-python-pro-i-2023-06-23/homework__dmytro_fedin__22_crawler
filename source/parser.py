@@ -2,25 +2,29 @@ def get_arguments():
     import argparse
 
     parser = argparse.ArgumentParser(
-        description="My first and simple CLI program."
+        description="Set the links to process."
     )
-    parser.add_argument("--name", help="Your name.")
+    parser.add_argument("--link_list",
+                        type=list[str],
+                        default=['nexus2f.com'],
+                        help="List of links to process.",
+                        )
+    parser.add_argument("--link_depth",
+                        type=int,
+                        default='2',
+                        help="Depth for link processing.",
+                        )
     arguments = parser.parse_args()
+
     return arguments
 
 
-# Get arguments
 args = get_arguments()
 
 
-# With no exclusion
-def is_name() -> bool:
-    if args.name is None:
-        return False
-    else:
-        return True
+def get_link_list():
+    return args.link_list
 
 
-def parse_name() -> None:
-    if args.name:
-        print(f"Hello, {args.name}!")
+def get_link_depth():
+    return args.link_depth
