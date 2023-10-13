@@ -5,7 +5,7 @@ services:
   app:
     volumes:
       - ./logs:/wd/logs:rw
-    user: ${UID}
+    user: 1001:1001
     environment:
       - NAME=Bob
     command:
