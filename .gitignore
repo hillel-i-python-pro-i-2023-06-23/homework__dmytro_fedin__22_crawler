@@ -1,0 +1,7 @@
+# Byte-compiled / optimized / DLL files_storage
+__pycache__/
+/venv/
+.idea
+
+# Configuration overrides
+docker-compose.override.yml

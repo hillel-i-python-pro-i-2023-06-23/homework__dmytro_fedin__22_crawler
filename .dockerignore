@@ -1,0 +1,9 @@
+# Ignore all
+**
+
+# Exclude
+!app
+!logs
+!source
+!run.py
+!requirements.txt
