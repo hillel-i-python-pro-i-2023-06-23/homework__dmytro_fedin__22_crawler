@@ -8,4 +8,4 @@ def main():
 
     urls_to_access = get_url_list()
 
-    get_urls(2, urls_to_access)
+    get_urls(recursion_depth=2, list_of_urls=urls_to_access)
