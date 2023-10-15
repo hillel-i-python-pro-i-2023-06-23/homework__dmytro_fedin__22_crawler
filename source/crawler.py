@@ -5,6 +5,7 @@ from .driver import add_to_csv
 from .logger import write_log
 
 
+# Get all valid urls from web page by page url
 def get_page_urls(url: str) -> list[str]:
     def is_response(current_response: requests.Response) -> bool:
         status_code = current_response.status_code
@@ -39,20 +40,23 @@ def get_page_urls(url: str) -> list[str]:
     return found_urls
 
 
-def get_urls(recursion_depth: int, list_of_urls: list[str]):
+# Get urls from all pages pointed in initial url list
+def get_urls(recursion_depth: int, list_of_urls: list[str]) -> None:
     if recursion_depth <= 0:
         return
 
     urls_to_visit = []
+    visited_urls = []
 
-    msg = f"Got url list to process: {list_of_urls})"
+    msg = f"Got url list to process: {list_of_urls[:2]} etc.)"
     write_log(msg)
 
     for url in list_of_urls:
+        visited_urls.append(url)
+
         found_urls = get_page_urls(url)
 
-        for found_url in found_urls:
-            urls_to_visit.append(found_url)
+        [urls_to_visit.append(found_url) for found_url in found_urls if found_url not in visited_urls]
 
         add_to_csv(found_urls)
 
