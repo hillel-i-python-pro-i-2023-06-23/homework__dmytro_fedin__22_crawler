@@ -2,9 +2,10 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 from .driver import add_to_csv
+from .logger import write_log
 
 
-def get_page_links(url: str) -> list[str]:
+def get_page_urls(url: str) -> list[str]:
     def is_response(current_response: requests.Response) -> bool:
         status_code = current_response.status_code
 
@@ -38,23 +39,27 @@ def get_page_links(url: str) -> list[str]:
     return found_urls
 
 
-def get_links(recursion_depth: int, list_of_urls: list[str]):
+def get_urls(recursion_depth: int, list_of_urls: list[str]):
     if recursion_depth <= 0:
         return
 
     urls_to_visit = []
 
-    print(f"Got url list to process: {list_of_urls})")
+    msg = f"Got url list to process: {list_of_urls})"
+    write_log(msg)
 
     for url in list_of_urls:
-        found_urls = get_page_links(url)
+        found_urls = get_page_urls(url)
 
         for found_url in found_urls:
             urls_to_visit.append(found_url)
 
         add_to_csv(found_urls)
 
-    print(f"Found {len(urls_to_visit)} urls (first is: {urls_to_visit[0]})")
-    print(f"Recursions before end: {recursion_depth}")
+    msg = f"Found {len(urls_to_visit)} urls (first is: {urls_to_visit[0]})"
+    write_log(msg)
 
-    get_links(recursion_depth - 1, urls_to_visit)
+    msg = f"Recursions before end: {recursion_depth}"
+    write_log(msg)
+
+    get_urls(recursion_depth - 1, urls_to_visit)

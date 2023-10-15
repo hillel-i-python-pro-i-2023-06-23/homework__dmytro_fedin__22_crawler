@@ -23,9 +23,9 @@ def get_arguments():
 args = get_arguments()
 
 
-def get_link_list():
+def get_url_list():
     return args.link_list
 
 
-def get_link_depth():
+def get_url_depth():
     return args.link_depth
