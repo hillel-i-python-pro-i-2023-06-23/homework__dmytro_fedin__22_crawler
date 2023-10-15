@@ -6,8 +6,8 @@ services:
     volumes:
       - ./logs:/wd/logs:rw
     user: 1001:1001
-    environment:
-      - NAME=Bob
-    command:
-      - "--name"
-      - "${NAME}"
+#    environment:
+#      - NAME=Bob
+#    command:
+#      - "--link_list"
+#      - "${NAME}"

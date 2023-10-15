@@ -49,6 +49,7 @@ homework-i-run:
 
 .PHONY: homework-i-purge
 homework-i-purge:
+	make d-purge
 	@echo Goodbye
 
 

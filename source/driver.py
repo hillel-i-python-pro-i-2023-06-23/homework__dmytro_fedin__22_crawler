@@ -1,6 +1,19 @@
 import re
 from typing import Pattern
 from urllib.parse import urlsplit
+import csv
+import os
+
+
+def add_to_csv(items: list[str]) -> None:
+    current_directory = os.getcwd()
+    file_path = os.path.join(current_directory, "logs/links.csv")
+
+    with open(file_path, 'w') as csv_file:
+        writer = csv.writer(csv_file)
+
+        for item in items:
+            writer.writerow([item])
 
 
 def get_priority_list(link_list: list[str]) -> list[float]:

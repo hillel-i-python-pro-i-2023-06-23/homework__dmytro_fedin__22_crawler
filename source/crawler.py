@@ -1,54 +1,37 @@
-from queue import PriorityQueue
-
 import requests
 from bs4 import BeautifulSoup
-import queue
-import re
-import time
-import random
-
-from .driver import get_priority_list, get_pattern
+from urllib.parse import urlparse
 
 
-def access_pages(link_list: list[str], link_depth: int):
-    visited_urls = []
-    failed_access_urls = []
-    urls = queue.PriorityQueue()
+def get_page_links(url: str) -> list[str]:
+    def is_response(current_response: requests.Response) -> bool:
+        status_code = current_response.status_code
 
-    priority_list = get_priority_list(link_list)
-
-    [urls.put((priority, link)) for priority, link in zip(priority_list, link_list)]
-
-    while not urls.empty():
-        _, current_url = urls.get()
-
-        response = requests.get(current_url)
-
-        if response.status_code == 403:
-            print(f"Got status_code {response.status_code} for {current_url}")
-            failed_access_urls.append(current_url)
-
-            continue
-
+        if status_code == 403:
+            response_status = False
         else:
-            print(f"Got status_code {response.status_code} for {current_url}")
+            response_status = True
 
-            soup = BeautifulSoup(response.content, "html.parser")
+        return response_status
 
-            visited_urls.append(current_url)
+    def is_valid_url(url: str) -> bool:
+        try:
+            result = urlparse(url)
+            return all([result.scheme, result.netloc])
+        except ValueError:
+            return False
 
-            link_elements = soup.select("a[href]")
+    found_urls = []
 
-            for link_element in link_elements:
-                url = link_element['href']
+    response = requests.get(url)
 
-                pattern = get_pattern(current_url)
+    if is_response(response):
+        soup = BeautifulSoup(response.content, "html.parser")
 
-                if re.match(pattern, url):
+        for url in soup.find_all('a'):
+            link_target = url.get('href')
 
-                    print(f"For link {link_element.name} url is {url}")
-                    if url not in visited_urls and url not in [item[1] for item in urls.queue]:
-                        priority_score = 1
-                        urls.put((priority_score, url))
+            if is_valid_url(link_target):
+                found_urls.append(link_target)
 
-        time.sleep(1)
+    return found_urls
