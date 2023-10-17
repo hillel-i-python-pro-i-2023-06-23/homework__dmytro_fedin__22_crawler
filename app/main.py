@@ -1,4 +1,4 @@
-from source.parser import get_url_list, get_url_depth
+from source.parser import get_url_list
 from source.crawler import get_urls
 from source.logger import write_log
 from source.driver import get_current_time, get_time_delta

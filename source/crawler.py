@@ -31,8 +31,8 @@ def get_page_urls(url: str) -> list[str]:
     if is_response(response):
         soup = BeautifulSoup(response.content, "html.parser")
 
-        for url in soup.find_all('a'):
-            link_target = url.get('href')
+        for url in soup.find_all("a"):
+            link_target = url.get("href")
 
             if is_valid_url(link_target):
                 found_urls.append(link_target)
@@ -56,7 +56,11 @@ def get_urls(recursion_depth: int, list_of_urls: list[str]) -> None:
 
         found_urls = get_page_urls(url)
 
-        [urls_to_visit.append(found_url) for found_url in found_urls if found_url not in visited_urls]
+        [
+            urls_to_visit.append(found_url)
+            for found_url in found_urls
+            if found_url not in visited_urls
+        ]
 
         add_to_csv(found_urls)
 
