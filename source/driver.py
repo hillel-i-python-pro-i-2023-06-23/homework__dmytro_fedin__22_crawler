@@ -6,7 +6,7 @@ import os
 from datetime import datetime
 
 
-def add_to_csv(items: list[str]) -> None:
+async def add_to_csv(items: list[str]) -> None:
     current_directory = os.getcwd()
     file_path = os.path.join(current_directory, "logs/links.csv")
 

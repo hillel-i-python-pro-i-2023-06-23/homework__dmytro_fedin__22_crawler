@@ -1,14 +1,11 @@
 import logging
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    filename=r"logs/log_file.txt",
-    filemode="a",
-)
+import logging
 
 
-def write_log(msg: str) -> None:
-    logger = logging.getLogger()
+def get_core_logger() -> logging.Logger:
+    return logging.getLogger("core")
 
-    logger.info(msg)
+
+def get_custom_logger(name: str) -> logging.Logger:
+    return logging.getLogger(name)
