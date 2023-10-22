@@ -5,7 +5,7 @@ def get_arguments():
     parser.add_argument(
         "--link_list",
         type=list[str],
-        default=["https://www.wikipedia.org/"],
+        default=["https://www.example.com/"],
         # default=["https://www.google.com/"],
         help="List of links to process.",
     )

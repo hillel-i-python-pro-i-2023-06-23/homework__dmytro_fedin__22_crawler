@@ -1,74 +1,59 @@
 import asyncio
-import logging
 import aiohttp
-import bs4
-from typing import TypeAlias
-from urllib.parse import urlparse
-from source.logger import get_custom_logger
-
-T_URL: TypeAlias = str
-T_URLS: TypeAlias = list[T_URL]
-T_URLS_AS_SET: TypeAlias = set[T_URL]
-
-T_TEXT: TypeAlias = str
+import requests
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin, urlparse
+from source.parser import get_url_list, get_url_depth
 
 
-def is_valid_url(url: T_URL) -> bool:
+async def fetch_url(session, url, depth):
     try:
-        result = urlparse(url)
-        return all([result.scheme, result.netloc])
-    except ValueError:
-        return False
+        async with session.get(url) as response:
+            response.raise_for_status()
+            content = await response.text()
+
+        return (depth, url, content)
+    except Exception as e:
+        return None
 
 
-async def get_urls_from_text(text: T_TEXT) -> T_URLS_AS_SET:
-    soup = bs4.BeautifulSoup(markup=text, features="html.parser")
+async def process_page(session, queue, url, depth):
 
-    urls = set()
-    for link_element in soup.find_all("a"):
-        url = link_element.get("href")
+    page = await fetch_url(session, url, depth)
+    if page is None:
+        return
 
-        if is_valid_url(url):
-            urls.add(url)
+    depth, url, content = page
 
-    return set(urls)
+    soup = BeautifulSoup(content, "html.parser")
 
+    for link in soup.find_all("a", href=True):
+        new_url = urljoin(url, link["href"])
+        print(new_url)
 
-async def make_request(url: T_URL, session: aiohttp.ClientSession, logger: logging.Logger) -> T_TEXT:
-    async with session.get(url) as response:
-        logger.info(response.status)
-        return await response.text()
+        await queue.put((depth + 1, new_url))
 
 
-async def handle_url(url: T_URL, session: aiohttp.ClientSession) -> T_URLS:
-    logger = get_custom_logger(name=str(url))
+async def main():
+    initial_urls = get_url_list()
+    max_depth = get_url_depth()
 
-    text = await make_request(url=url, session=session, logger=logger)
+    queue = asyncio.Queue()
 
-    urls_as_set = await get_urls_from_text(text=text)
-
-    return list(urls_as_set)
-
-
-async def main(urls: T_URLS, depth: int, all_results: list = None):
-    if all_results is None:
-        all_results = []
-
-    if depth <= 0:
-        return all_results
+    for url in initial_urls:
+        await queue.put((1, url))
 
     async with aiohttp.ClientSession() as session:
-        tasks = [handle_url(url=url, session=session) for url in urls]
+        while not queue.empty():
+            print('run')
+            depth, url = await queue.get()
+            if depth > max_depth:
+                print(f"max depth {max_depth} reached")
+                break
 
-        results = await asyncio.gather(*tasks)
-
-        flattened_results = [item for sublist in results for item in sublist]
-
-        all_results.extend(flattened_results)
-
-        print(all_results)
-
-        await main(urls, depth - 1, all_results)
-
-    return all_results
-
+            await process_page(
+                session=session,
+                queue=queue,
+                url=url,
+                depth=depth,
+            )
