@@ -1,9 +1,10 @@
 import asyncio
 import aiohttp
-import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 from source.parser import get_url_list, get_url_depth
+from source.logger import write_log
+from source.services import add_to_csv
 
 
 async def fetch_url(session, url, depth):
@@ -13,12 +14,11 @@ async def fetch_url(session, url, depth):
             content = await response.text()
 
         return (depth, url, content)
-    except Exception as e:
+    except Exception:
         return None
 
 
 async def process_page(session, queue, url, depth):
-
     visited_urls = []
 
     page = await fetch_url(session, url, depth)
@@ -31,8 +31,9 @@ async def process_page(session, queue, url, depth):
 
     for link in soup.find_all("a", href=True):
         new_url = urljoin(url, link["href"])
+
         if new_url not in visited_urls:
-            print(new_url)
+            await add_to_csv(new_url)
             visited_urls.append(new_url)
 
             await queue.put((depth + 1, new_url))
@@ -42,19 +43,22 @@ async def main():
     initial_urls = get_url_list()
     max_depth = get_url_depth()
 
+    write_log(f"Run for urls: {initial_urls} with depth {max_depth}")
+
     queue = asyncio.Queue()
 
     for url in initial_urls:
         await queue.put((1, url))
 
     async with aiohttp.ClientSession() as session:
+        start_time = asyncio.get_event_loop().time()
+
         while not queue.empty():
             depth, url = await queue.get()
-            if depth > max_depth:
-                print(f"max depth {max_depth} reached")
-                break
 
-            print(f"Run with depth {depth}")
+            if depth > max_depth:
+                write_log(f"Max depth {max_depth} reached")
+                break
 
             await process_page(
                 session=session,
@@ -62,3 +66,7 @@ async def main():
                 url=url,
                 depth=depth,
             )
+
+        end_time = asyncio.get_event_loop().time()
+        elapsed_time = end_time - start_time
+        write_log(f"Elapsed time: {elapsed_time:.1f} seconds")
