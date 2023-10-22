@@ -19,6 +19,8 @@ async def fetch_url(session, url, depth):
 
 async def process_page(session, queue, url, depth):
 
+    visited_urls = []
+
     page = await fetch_url(session, url, depth)
     if page is None:
         return
@@ -29,9 +31,11 @@ async def process_page(session, queue, url, depth):
 
     for link in soup.find_all("a", href=True):
         new_url = urljoin(url, link["href"])
-        print(new_url)
+        if new_url not in visited_urls:
+            print(new_url)
+            visited_urls.append(new_url)
 
-        await queue.put((depth + 1, new_url))
+            await queue.put((depth + 1, new_url))
 
 
 async def main():
@@ -45,11 +49,12 @@ async def main():
 
     async with aiohttp.ClientSession() as session:
         while not queue.empty():
-            print('run')
             depth, url = await queue.get()
             if depth > max_depth:
                 print(f"max depth {max_depth} reached")
                 break
+
+            print(f"Run with depth {depth}")
 
             await process_page(
                 session=session,
