@@ -5,9 +5,8 @@
 
 ## 🏠 Homework
 
-The simple console application: run it with only one argument --name [Your_name] and 
-get greeting from random person. To run the application in Docker
-the argument with default value for name "Bob" is passed.
+The simple console application to collect urls from pages.
+Run it with only two arguments --link_list [url] and --link_depth [depth] and get urls in logs/urls.csv file.
 
 
 
